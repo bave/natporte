@@ -1,0 +1,461 @@
+#!/usr/bin/env node
+
+// pool_server start ..
+var opts;
+try {
+    opts = require('opts');
+} catch (e) {
+    console.log(e);
+    console.log("please install \"opts\" module by npm.");
+    return -1;
+}
+
+opts.parse([
+    {
+        'short'      : 'v',
+        'long'       : 'version',
+        'description': 'show natporte\'s pool server version',
+        'value'      : false,
+        'required'   : false,
+        'callback'   : opt_version
+    },
+    {
+        'short'      : 'd',
+        'long'       : 'debug',
+        'description': 'show debug messages',
+        'value'      : false,
+        'required'   : false,
+        'callback'   : undefined
+    },
+    {
+        'short'      : 'i',
+        'long'       : 'idebug',
+        'description': 'show interval debug messages',
+        'value'      : false,
+        'required'   : false,
+        'callback'   : undefined
+    },
+    {
+        'short'      : 's',
+        'long'       : 'start',
+        'description': 'set start port number (default:4097)',
+        'value'      : true,
+        'required'   : false,
+        'callback'   : undefined
+    },
+    {
+        'short'      : 'e',
+        'long'       : 'end',
+        'description': 'set end port number (default:65534)',
+        'value'      : true,
+        'required'   : false,
+        'callback'   : undefined
+    },
+    {
+        'short'      : 'm',
+        'long'       : 'max',
+        'description': 'set maximum connections (default:100)',
+        'value'      : true,
+        'required'   : false,
+        'callback'   : undefined
+    },
+    {
+        'short'      : 't',
+        'long'       : 'tcptimeout',
+        'description': 'set tcp session timeout [sec] (default:3600)',
+        'value'      : true,
+        'required'   : false,
+        'callback'   : undefined
+    },
+    {
+        'short'      : 'u',
+        'long'       : 'udptimeout',
+        'description': 'set udp session timeout [sec] (default:10)',
+        'value'      : true,
+        'required'   : false,
+        'callback'   : undefined
+    },
+    {
+        'short'      : 'h',
+        'long'       : 'help',
+        'description': 'show help command',
+        'value'      : false,
+        'required'   : false,
+        'callback'   : opt_help
+    }
+]);
+
+// parameters
+var DEBUG = opts.get('debug');
+
+var INTERVLA_DEBUG = opts.get('idebug');
+
+var startPort = opts.get('start');
+if (startPort == undefined) {
+    startPort = 4097;
+}
+
+var endPort = opts.get('end');
+if (endPort == undefined) {
+    endPort = 65534;
+}
+
+var max_connections = opts.get('max');
+if (max_connections == undefined) {
+    max_connections = 100;
+}
+
+var timeout_tcp = opts.get('tcptimeout');
+if (timeout_tcp == undefined) {
+    timeout_tcp = 60*60;
+}
+
+var timeout_udp = opts.get('udptimeout');
+if (timeout_udp == undefined) {
+    timeout_udp = 10;
+}
+
+
+var nettool = require('./nettool.js');
+var interfaces = require('os').networkInterfaces();
+
+var wan_addrs = [];
+var Entry= require('./entry.js');
+var tcpDB = new Entry('TCP', wan_addrs, startPort, endPort, max_connections);
+var udpDB = new Entry('UDP', wan_addrs, startPort, endPort, max_connections);
+
+if (DEBUG) {
+    console.log("max_conn   : " + max_connections);
+    console.log("startPort  : " + startPort);
+    console.log("endPort    : " + endPort);
+    console.log("timeout_udp: " + timeout_udp);
+    console.log("timeout_tcp: " + timeout_tcp);
+}
+
+var natporte_message = {};
+var wan_addrs_list = {};
+
+var net = require('net');
+var server = net.createServer(
+    function(socket)
+    {
+        var info = [];
+        var own = socket.address();
+        info.push(own["address"]);
+        info.push(own["port"]);
+        info.push(socket.remoteAddress);
+        info.push(socket.remotePort);
+
+        //console.log(info);
+        //socket.setEncoding("utf8");
+        //socket.addListener("end", server_end);
+        //socket.addListener("data", server_data);
+        //socket.addListener("connect", server_connect);
+
+        socket.on('end', function(){ server_end(socket, info); });
+        socket.on('connect', function(){ server_connect(socket, info); });
+        socket.on('data', function(data){ server_data(socket, info, data); });
+    }
+);
+
+var id = undefined;
+if (INTERVLA_DEBUG) {
+    function print_db()
+    {
+        var count = 0;
+        console.log("---------------------------------");
+        /*
+        console.log("tcp");
+        tcpDB.printDB();
+        console.log("\nudp");
+        udpDB.printDB();
+        */
+        count += tcpDB.countDB()
+        count += udpDB.countDB()
+        console.log("count=" + count);
+        console.log("---------------------------------");
+        return undefined;
+    }
+    id = setInterval(print_db, 1000);
+}
+
+//server.listen(8668);
+server.listen(8668, 'localhost');
+
+// ---------------------------------------------------------------------------------
+// -- prototype                                                                   --
+// ---------------------------------------------------------------------------------
+function server_connect(socket, info)
+{
+    var own_ip    = info[0];
+    var own_port  = info[1];
+    var peer_ip   = info[2];
+    var peer_port = info[3];
+    var socket_id = peer_ip + ":" + peer_port;
+
+    if (DEBUG) {
+        console.log("Connected from " + peer_ip + ":" + peer_port);
+    }
+
+    natporte_message[socket_id] = '';
+    wan_addrs_list[socket_id] = [];
+
+    var send_message = {};
+    send_message['type'] = 'initialize';
+    send_message['timeout_tcp'] = timeout_tcp*1000;
+    send_message['timeout_udp'] = timeout_udp*1000;
+    //send_message['staticNAT'] = ["test1", "test2"];
+    socket.write(JSON.stringify(send_message)+"\n");
+
+    return;
+}
+
+function server_data(socket, info, data)
+{
+    var own_ip    = info[0];
+    var own_port  = info[1];
+    var peer_ip   = info[2];
+    var peer_port = info[3];
+    var socket_id = peer_ip + ":" + peer_port;
+    var recv_message;
+    var send_message;
+
+
+    try {
+        var buffer = natporte_message[socket_id];
+        buffer = buffer.concat(data.toString('ascii'));
+        var string_indexing = buffer.split("\n");
+        var last = string_indexing.length;
+        for (var i=0; i<=last-2; i++) {
+            try {
+                //console.log("Data from " + peer_ip + ":" + peer_port);
+                //console.log(string_indexing[i]);
+
+                recv_message = JSON.parse(string_indexing[i]);
+                send_message = mk_message(socket_id, recv_message);
+
+                if (send_message != undefined) {
+                    socket.write(JSON.stringify(send_message)+"\n");
+                }
+
+            } catch (e) {
+                console.log(e);
+                if (DEBUG == false && INTERVLA_DEBUG == false) {
+                    socket.end();
+                }
+            }
+        }
+        if (string_indexing[last-1] == undefined) {
+            natporte_message[socket_id] = '';
+        } else {
+            natporte_message[socket_id] = string_indexing[last-1];
+        }
+    } catch (e) {
+            console.log(e);
+    }
+    return;
+}
+
+function server_end(socket, info)
+{
+    var own_ip    = info[0];
+    var own_port  = info[1];
+    var peer_ip   = info[2];
+    var peer_port = info[3];
+    var socket_id = peer_ip + ":" + peer_port;
+
+    wan_addrs = wan_addrs_list[socket_id];
+    delete wan_addrs_list[socket_id]
+
+    for (var i in wan_addrs) {
+        var ret = false;
+        for (var j in wan_addrs_list) {
+            for (var k in wan_addrs_list[j]) {
+                if (wan_addrs[i] == wan_addrs_list[j][k]) {
+                    console.log("hoge");
+                    ret = true;
+                }
+            }
+        }
+        if (ret == false) {
+            tcpDB.delPoolAddresses(wan_addrs[i]);
+            udpDB.delPoolAddresses(wan_addrs[i]);
+        }
+    }
+    
+    if (DEBUG) {
+        console.log("");
+        console.log("Closeed from " + peer_ip + ":" + peer_port);
+        console.log("current pool wan addrs");
+        tcpDB.printPoolAddrs();
+        console.log("current tcpDB");
+        tcpDB.printDB();
+        console.log("currnet udpDB");
+        udpDB.printDB();
+        //udpDB.printPoolAddrs();
+        console.log("");
+    }
+
+    socket.end();
+    return;
+}
+
+function mk_message(socket_id, message)
+{
+
+    var type     = message['type'];
+    var protocol = message['protocol'];
+    var ctime    = message['ctime'];
+
+    var result = undefined;
+
+    switch (type)
+    {
+        case 'request':
+        {
+            message['ip_src'] = nettool.inet_ntoa(message['ip_src']);
+            message['ip_dst'] = nettool.inet_ntoa(message['ip_dst']);
+            if (DEBUG) {
+                console.log("recv_message");
+                console.log(message);
+            }
+            var ip_src   = message['ip_src'];
+            var ip_dst   = message['ip_dst'];
+            var port_src = message['port_src'];
+            var port_dst = message['port_dst'];
+            result = request(protocol, ctime, ip_src, port_src, ip_dst, port_dst);
+            if (result == undefined) {
+                result = {}
+                result['lan_ip']  = ip_src;
+                result['wan_ip']  = ip_dst;
+                result['lan_port'] = port_src;
+                result['wan_port'] = port_dst;
+                result['protocol'] = protocol;
+                result['type'] = "request_discard";
+                if (DEBUG) {
+                    console.log("send_message");
+                    console.log(result);
+                }
+                result['wan_ip'] = nettool.inet_aton(result['wan_ip']);
+                result['lan_ip'] = nettool.inet_aton(result['lan_ip']);
+            } else {
+                result['protocol'] = protocol;
+                result['type'] = "request_ack";
+                if (DEBUG) {
+                    console.log("send_message");
+                    console.log(result);
+                    console.log("");
+                }
+                result['wan_ip'] = nettool.inet_aton(result['wan_ip']);
+                result['lan_ip'] = nettool.inet_aton(result['lan_ip']);
+            }
+            break;
+        }
+
+        case 'release':
+        {
+            message['lan_ip'] = nettool.inet_ntoa(message['lan_ip']);
+            message['wan_ip'] = nettool.inet_ntoa(message['wan_ip']);
+            if (DEBUG) {
+                console.log("recv_massege");
+                console.log(message);
+            }
+            var wan_ip   = message['wan_ip'];
+            var wan_port = message['wan_port'];
+            var lan_ip   = message['lan_ip'];
+            var lan_port = message['lan_port'];
+            result = release(protocol, ctime, lan_ip, lan_port, wan_ip, wan_port);
+            if (result == false) {
+                result = message;
+                //poolでリリースを失敗はしててもとりあえず，NATテーブルから消してもらうために
+                //ackとして返す！ここの挙動はとりあえず，要件等！
+                result['type']     = "release_ack";
+                //result['type']     = "release_discard";
+                if (DEBUG) {
+                    console.log("send_message");
+                    console.log(result);
+                    console.log("");
+                }
+                result['wan_ip']   = nettool.inet_aton(wan_ip);
+                result['lan_ip']   = nettool.inet_aton(lan_ip);
+            } else {
+                result = message;
+                result['type']     = "release_ack";
+                if (DEBUG) {
+                    console.log("send_message");
+                    console.log(result);
+                    console.log("");
+                }
+                result['wan_ip']   = nettool.inet_aton(wan_ip);
+                result['lan_ip']   = nettool.inet_aton(lan_ip);
+            }
+            break;
+        } 
+
+        case 'initialize':
+        {
+            for (var i=0; i<message['wan_addrs'].length; i++) {
+                message['wan_addrs'][i] = nettool.inet_ntoa(message['wan_addrs'][i]);
+            }
+            if (DEBUG) {
+                console.log("initialize_massege");
+                console.log(message);
+            }
+            var wan_addrs = message['wan_addrs'];
+            tcpDB.addPoolAddresses(wan_addrs);
+            //tcpDB.printPoolPorts();
+            udpDB.addPoolAddresses(wan_addrs);
+            //udpDB.printPoolPorts();
+            wan_addrs_list[socket_id] = wan_addrs;
+            /*
+            if (DEBUG) {
+                console.log("sned_massege");
+                console.log("{ 'type' : 'NO ACK' }");
+            }
+            */
+        }
+
+        default:
+        {
+            return undefined;
+        }
+    }
+
+    return result;
+}
+
+function request(protocol, ctime, lan_ip, lan_port, wan_ip, wan_port)
+{
+    var result = undefined;
+    if (nettool.isTCP(protocol)) {
+        result = tcpDB.assignConnection(lan_ip, lan_port);
+    } else if (nettool.isUDP(protocol)) {
+        result = udpDB.assignConnection(lan_ip, lan_port);
+    }
+
+    return result;
+}
+
+function release(protocol, ctime, lan_ip, lan_port, wan_ip, wan_port)
+{
+    var result = false;
+    if (nettool.isTCP(protocol)) {
+        result = tcpDB.releaseConnection(lan_ip, lan_port, wan_ip, wan_port);
+    } else if (nettool.isUDP(protocol)) {
+        result = udpDB.releaseConnection(lan_ip, lan_port, wan_ip, wan_port);
+    }
+
+    return result;;
+}
+
+// opt.parse callback
+function opt_version() {
+    console.log('v0.1');
+    process.exit(1);
+};
+
+function opt_help() {
+    console.log(opts.help());
+    process.exit(1);
+};
+
