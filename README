@@ -65,7 +65,7 @@ This program/software is Large Scale Network Address translation for verificatio
 
   - natctl.sh
     - natctl.sh is simple script for starting natporte.
-    - It has a few parameters which is following.
+    - It has a few parameters which are following.
       - LAN_IF
         - local area network side interface
       - WNA_IF
