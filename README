@@ -31,7 +31,7 @@ This program/software is Large Scale Network Address translation for verificatio
         - npm install forever -g
 
   - using pool server
-    - Usage: node /usr/home/t-inoue/git/natporte/bin/poolserver [options]
+    - Usage: node ./poolserver [options]
     - show help command
         -h, --help
     - set udp session timeout [sec] (default:10)
