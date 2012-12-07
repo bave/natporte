@@ -24,14 +24,14 @@ This program/software is Large Scale Network Address translation for verificatio
         -DIP_CHECKSUM
         -DDIFF_CKSUM
 
-    - poolserver
+    - pool_server
       - nodejs
       - npm
         - npm install opts
         - npm install forever -g
 
   - using pool server
-    - Usage: node ./poolserver [options]
+    - Usage: node ./pool_server [options]
     - show help command
         -h, --help
     - set udp session timeout [sec] (default:10)
