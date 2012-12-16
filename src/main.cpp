@@ -378,7 +378,7 @@ int main(int argc, char** argv)
             PERROR("kevent");
             exit(-1);
         } else if (kev.ident == 1) {
-#ifdef DEBUGN
+#ifdef DEBUG
             printf("----------------------------------------\n");
             B_RLOCK;
             //dump_tree();
