@@ -957,6 +957,11 @@ static inline int wan2lan_alias(char* buf, ssize_t size)
                 case ICMP_ECHOREPLY:
                 case ICMP_TSTAMPREPLY:
                 {
+                    ret = chk_selfaddr(iphdr->ip_src.s_addr, icmp_bucket.local, ALIAS_FROM_WAN2LAN);
+                    if (ret == ALIAS_TO_ME)
+                    {
+                        return ALIAS_TO_ME;
+                    }
                     iphdr->ip_dst.s_addr = icmp_bucket.local;
                     iphdr->ip_sum = 0x0000;
                     break;
