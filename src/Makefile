@@ -1,6 +1,6 @@
 
 # release
-CXXFLAGS = -pipe -O0 -lpthread -ltcmalloc -Wall -Wno-unused-function -DWAIT_TIME_DELETE -DDIFF_CKSUM -DNATIVE_LOCK
+CXXFLAGS = -pipe -O2 -lpthread -ltcmalloc -Wall -Wno-unused-function -DWAIT_TIME_DELETE -DDIFF_CKSUM -DNATIVE_LOCK
 
 #CXXFLAGS = -pipe -O0 -lpthread -ltcmalloc -Wall -Wno-unused-function -DWAIT_TIME_DELETE -DOPT_HOSTID -DDIFF_CKSUM -DNATIVE_LOCK
 

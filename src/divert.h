@@ -460,12 +460,9 @@ int open_divert(uint16_t port)
 int pthread_create_divert(int fd, uint64_t lan_if_num, uint64_t wan_if_num)
 {
 
-    pthread_attr_t attr = NULL;
+    pthread_attr_t attr;
 
-/*
     int ret;
-    int newprio = 30;
-    sched_param param;
 
     ret = pthread_attr_init(&attr);
     if (ret != 0) {
@@ -473,6 +470,9 @@ int pthread_create_divert(int fd, uint64_t lan_if_num, uint64_t wan_if_num)
         exit(-1);
     }
 
+    /*
+    sched_param param;
+    int newprio = 30;
     param.sched_priority = newprio;
     ret = pthread_attr_setschedparam (&attr, &param);
     if (ret != 0) {
@@ -484,7 +484,7 @@ int pthread_create_divert(int fd, uint64_t lan_if_num, uint64_t wan_if_num)
         PERROR("pthread_attr_setschedpolicy");
         exit(-1);
     }
-*/
+    */
 
     struct pth_divert_args* pth_args;
     pth_args = (struct pth_divert_args*)malloc(sizeof(struct pth_divert_args));
