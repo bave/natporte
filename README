@@ -1,4 +1,4 @@
-This program/software is Large Scale Network Address translation(lanat, CGN, LSN) for verification test.
+This program/software is Large Scale Network Address translation(lsnat, CGN, LSN) for verification test.
 
   - runnning under the certain operating systems are available to use divert socket
 
