@@ -1,5 +1,5 @@
-#include "utils.hpp"
-#include "alias.h"
+#include "../src/utils.hpp"
+#include "../src/alias.h"
 
 int main(int argc, char** argv)
 {

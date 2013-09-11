@@ -1,5 +1,5 @@
 #ifndef INTERFACE_HPP
-#define INTERFACE_HPP
+#define INTERFACE_HPP 1
 
 #include "utils.hpp"
 #include "log.hpp"

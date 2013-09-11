@@ -1,5 +1,5 @@
 #ifndef ADDRPOOL_H
-#define ADDRPOOL_H
+#define ADDRPOOL_H 1
 
 #include "utils.hpp"
 #include "log.hpp"

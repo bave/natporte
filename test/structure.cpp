@@ -5,8 +5,8 @@
 
 #include <netinet/in.h>
 
-#include "structure.h"
-#include "utils.hpp"
+#include "../src/structure.h"
+#include "../src/utils.hpp"
 
 
 int main(int argc ,char** argv)
@@ -68,6 +68,7 @@ int main(int argc ,char** argv)
         printf("n is null pointer\n");
         exit(-1);
     } else {
+        ;
     }
 
     printf("refind\n");
@@ -101,17 +102,14 @@ int main(int argc ,char** argv)
     }
 
     i = 1;
-    RB_FOREACH(n, l2w, &l2w_head){
+    RB_FOREACH(n, l2w, &l2w_head) {
         printf("count %d\n", i);
-        /*
         printf("lan_ip  :%x\n", n->lan.ip);
         printf("lan_port:%d\n", n->lan.port);
         printf("wan_ip  :%x\n", n->wan.ip);
         printf("wan_port:%d\n", n->wan.port);
-        */
         atime(n);
         print_node(n);
-        sleep(0);
         i++;
         printf("\n");
     }

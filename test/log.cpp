@@ -1,4 +1,4 @@
-#include "log.hpp"
+#include "../src/log.hpp"
 #include <boost/scoped_ptr.hpp>
 
 log* s;

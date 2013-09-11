@@ -1,5 +1,5 @@
 #ifndef STRUCTRUE_H
-#define STRUCTRUE_H
+#define STRUCTRUE_H 1
 
 
 #include <sys/types.h>
@@ -767,6 +767,7 @@ static inline void attach(struct node* node)
     atime(node);
     return;
 }
+
 static inline const char* table_tcp_status(int s_tf_flag)
 {
     switch (s_tf_flag)
@@ -1045,7 +1046,7 @@ static inline void del_timer_event_tcp(uint64_t ident)
     return;
 }
 
-static int count_node()
+int count_node()
 {
     int i = 0;
     struct node* table;
@@ -1056,7 +1057,7 @@ static int count_node()
 }
 
 
-static void dump_tree()
+void dump_tree()
 {
     int i = 1;
     struct node* table;

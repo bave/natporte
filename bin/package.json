@@ -7,7 +7,6 @@
   }],
   "description": "A NAT tabls management softwoare for the natporte",
   "dependencies": {
-    "forever": "*",
     "opts": "*"
   },
   "engines" : { "node" : ">=0.8.0" },
