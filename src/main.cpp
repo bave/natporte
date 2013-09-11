@@ -227,8 +227,8 @@ int main(int argc, char** argv)
     }
 
 
-    wan_if_mtu = get_mut(wan_if);
-    lan_if_mtu = get_mut(lan_if);
+    wan_if_mtu = get_mtu(wan_if);
+    lan_if_mtu = get_mtu(lan_if);
 
     for (i=0; i<iflist->list4size(); i++) {
 

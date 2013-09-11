@@ -414,7 +414,7 @@ void split(const std::string& s_src, const char *c, std::vector<std::string>& s_
     return;
 }
 
-size_t get_mut(const char* ifname)
+size_t get_mtu(const char* ifname)
 {
     int fd;
     struct ifreq ifr;

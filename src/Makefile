@@ -1,11 +1,11 @@
 
-# release
-CXXFLAGS = -pipe -O2 -lpthread -ltcmalloc -Wall -Wno-unused-function -DWAIT_TIME_DELETE -DDIFF_CKSUM -DNATIVE_LOCK
+CXXFLAGS = -pipe -O3 -lpthread -ltcmalloc -Wall -Wno-deprecated-declarations -Wno-unused-function -DWAIT_TIME_DELETE -DDIFF_CKSUM -DNATIVE_LOCK
 
-#CXXFLAGS = -pipe -O0 -lpthread -ltcmalloc -Wall -Wno-unused-function -DWAIT_TIME_DELETE -DOPT_HOSTID -DDIFF_CKSUM -DNATIVE_LOCK
+DEBUG_CXXFLAGS = -g -pipe -O0 -lpthread -ltcmalloc -Wall -Wno-deprecated-declarations -Wno-unused-function -DWAIT_TIME_DELETE -DDIFF_CKSUM -DNATIVE_LOCK -DDEBUG
 
-# debug
-#CXXFLAGS = -pipe -O0 -lpthread -ltcmalloc -Wall -Wno-unused-function -g -DDEBUG -DWAIT_TIME_DELETE -DOPT_HOSTID -DDIFF_CKSUM
+# use for hostid option
+#CXXFLAGS = -pipe -O3 -lpthread -ltcmalloc -Wall -Wno-deprecated-declarations -Wno-unused-function -DWAIT_TIME_DELETE -DOPT_HOSTID -DDIFF_CKSUM -DNATIVE_LOCK
+
 
 # define options
 #-DDEBUG
@@ -15,31 +15,25 @@ CXXFLAGS = -pipe -O2 -lpthread -ltcmalloc -Wall -Wno-unused-function -DWAIT_TIME
 #-DDIFF_CKSUM
 #-DNATIVE_LOCK
 
-#CXX = g++
-CXX = c++
+CXX = g++
+#CXX = c++
 
+DEP = divert.h interface.hpp main.cpp utils.hpp addrpool.h hostid.h structure.h alias.h log.hpp ring.h
 PROGNAME = natporte
 
 .PHONY: all clean
 
-all: ${PROGNAME} netutils_js
+all: ${PROGNAME}
 
 clean:
-		rm -f *~ *.a *.o
-		rm -rf *.dSYM
-		rm -f ./a.out ./utils ./log ./interface ./ring ./structure
-		rm -rf ./build
-		rm -rf ../bin/node_module
-		rm -rf ../bin/$(PROGNAME) 
-		rm -rf ../bin/$(PROGNAME).core
-		node-waf distclean
+	rm -f *~ *.a *.o ../bin/$(PROGNAME) ../bin/$(PROGNAME)_debug ../bin/$(PROGNAME).core
+	rm -rf *.dSYM ../bin/node_module
 
-netutils_js: netutils_js.cpp interface.hpp
-		node-waf configure
-		node-waf build
+${PROGNAME}: ${DEP}
+	${CXX} ${CXXFLAGS} -o ../bin/${PROGNAME} main.cpp
 
-${PROGNAME}: main.cpp
-		${CXX} ${CXXFLAGS} -o ../bin/$@ main.cpp
+debug: ${DEP}
+	${CXX} ${DEBUG_CXXFLAGS} -o ../bin/${PROGNAME}_debug main.cpp
 
 
 .DEFAULT: all

@@ -1,0 +1,15 @@
+{
+  "name": "pool_server",
+  "version": "0.0.1",
+  "contributors": [{
+      "name": "inoue.tomoya",
+      "email": "inoue.tomoya@gmail.com"
+  }],
+  "description": "A NAT tabls management softwoare for the natporte",
+  "dependencies": {
+    "forever": "*",
+    "opts": "*"
+  },
+  "engines" : { "node" : ">=0.8.0" },
+  "keywords": ["nat", "cgn", "lsn"]
+}
