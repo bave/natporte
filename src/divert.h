@@ -141,6 +141,11 @@ void* loop_divert(void* args)
                         std::cout << "[wan2lan]";
                     }
 #endif
+
+#ifdef STANDALONE
+goto: DIVERT_RE_CHECK;
+#endif
+
                     ret = wan2lan_alias(buf, size);
 
 
@@ -182,8 +187,15 @@ void* loop_divert(void* args)
                         std::cout << packet_info((struct ip*)buf) << std::endl;
                     }
 #endif
+
+#ifdef STANDALONE
+                    //XXX
+                    
+                    goto DIVERT_RE_CHECK;
+#else
                     ring_push(&h_send, buf, size, AP_SEND_REQ|AP_ADDRPOOL);
                     continue;
+#endif
 
                 } else if (ret == ALIAS_TOO_BIG) {
 
@@ -512,20 +524,6 @@ int pthread_create_divert(int fd, uint64_t lan_if_num, uint64_t wan_if_num)
     if (pthread_create(&pth_id_divert, &attr, loop_divert, pth_args2) != 0 ) {
         return -1;
     }
-
-    // 3kome
-    struct pth_divert_args* pth_args3;
-    pth_args3 = (struct pth_divert_args*)malloc(sizeof(struct pth_divert_args));
-    if (pth_args3 == NULL) { 
-        return -1;
-    }
-    pth_args3->fd = fd;
-    pth_args3->lan_if_num = lan_if_num;
-    pth_args3->wan_if_num = wan_if_num;
-    if (pthread_create(&pth_id_divert, &attr, loop_divert, pth_args3) != 0 ) {
-        return -1;
-    }
-
     */
 
 

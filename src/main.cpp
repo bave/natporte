@@ -62,14 +62,12 @@ class log* l;
 void usage();
 
 bool opt_nagete_df;
-bool opt_thread;
 
 bool verbose;
 #ifdef DEBUG
 #endif
 
 bool opt_hostid;
-
 
 
 int main(int argc, char** argv)
@@ -109,14 +107,13 @@ int main(int argc, char** argv)
 
     verbose = false;
     opt_hostid = false;
-    opt_thread = false; 
     opt_nagete_df = false;
 
     int i;
     std::set<std::string> has_interface;
 
     int ch;
-    while ((ch = getopt(argc, argv, "a:b:d:hil:nrtvw:")) != -1) {
+    while ((ch = getopt(argc, argv, "a:b:d:hil:nrvw:")) != -1) {
         switch (ch) {
             case 'a':
                 addrpool_port = atoi(optarg);
@@ -157,9 +154,6 @@ int main(int argc, char** argv)
             case 'r':
                 opt_reset = true;
                 break;
-            case 't':
-                opt_thread = true;
-                break;
 #ifdef DEBUG
             case 'i':
                 opt_node_table_dump = true;
@@ -182,11 +176,11 @@ int main(int argc, char** argv)
     for (i=0; i<iflist->list4size(); i++) {
         has_interface.insert(iflist->name4(i));
     }
+
     /*
     std::set<std::string>::iterator it = has_interface.begin();
     while( it != has_interface.end() ) { cout << *it << endl; ++it; }
     */
-
 
     if (wan_if == NULL) {
         usage();
@@ -211,7 +205,6 @@ int main(int argc, char** argv)
         return -1;
     }
 
-
     if (wan_if_num == lan_if_num) {
         std::cout << "cant set same interface between WanIF and LanIF" << std::endl;
         usage();
@@ -225,7 +218,6 @@ int main(int argc, char** argv)
             return -1;
         }
     }
-
 
     wan_if_mtu = get_mtu(wan_if);
     lan_if_mtu = get_mtu(lan_if);
@@ -321,8 +313,10 @@ int main(int argc, char** argv)
 
     s_init();
 
+#ifndef STANDALONE
     ring_init(&h_send, rb_size);
     ring_init(&h_recv, rb_size*100);
+#endif
 
     addrpool_fd = open_addrpool(addrpool_port);
     divert_fd = open_divert(divert_port);

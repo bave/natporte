@@ -3,6 +3,8 @@ CXXFLAGS = -pipe -O3 -lpthread -ltcmalloc -Wall -Wno-deprecated-declarations -Wn
 
 DEBUG_CXXFLAGS = -g -pipe -O0 -lpthread -ltcmalloc -Wall -Wno-deprecated-declarations -Wno-unused-function -DWAIT_TIME_DELETE -DDIFF_CKSUM -DNATIVE_LOCK -DDEBUG
 
+STANDALONE_CXXFLAGS = -g -pipe -O0 -lpthread -ltcmalloc -Wall -Wno-deprecated-declarations -Wno-unused-function -DWAIT_TIME_DELETE -DDIFF_CKSUM -DNATIVE_LOCK -DDEBUG -DSTANDALONE
+
 # use for hostid option
 #CXXFLAGS = -pipe -O3 -lpthread -ltcmalloc -Wall -Wno-deprecated-declarations -Wno-unused-function -DWAIT_TIME_DELETE -DOPT_HOSTID -DDIFF_CKSUM -DNATIVE_LOCK
 
@@ -14,6 +16,7 @@ DEBUG_CXXFLAGS = -g -pipe -O0 -lpthread -ltcmalloc -Wall -Wno-deprecated-declara
 #-DIP_CHECKSUM
 #-DDIFF_CKSUM
 #-DNATIVE_LOCK
+#-DSTANDALONE
 
 CXX = g++
 #CXX = c++
@@ -34,6 +37,9 @@ ${PROGNAME}: ${DEP}
 
 debug: ${DEP}
 	${CXX} ${DEBUG_CXXFLAGS} -o ../bin/${PROGNAME}_debug main.cpp
+
+standalone: ${DEP}
+	${CXX} ${DEBUG_CXXFLAGS} -o ../bin/${PROGNAME}_standalone main.cpp
 
 
 .DEFAULT: all
