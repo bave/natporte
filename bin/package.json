@@ -5,7 +5,7 @@
       "name": "inoue.tomoya",
       "email": "inoue.tomoya@gmail.com"
   }],
-  "description": "A NAT tabls management softwoare for the natporte",
+  "description": "A NAT tables management software for the natporte",
   "dependencies": {
     "opts": "*"
   },
