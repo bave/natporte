@@ -18,8 +18,8 @@ STANDALONE_CXXFLAGS = -g -pipe -O0 -lpthread -ltcmalloc -Wall -Wno-deprecated-de
 #-DNATIVE_LOCK
 #-DSTANDALONE
 
-CXX = g++
-#CXX = c++
+#CXX = g++
+CXX = c++
 
 DEP = divert.h interface.hpp main.cpp utils.hpp addrpool.h hostid.h structure.h alias.h log.hpp ring.h
 PROGNAME = natporte
