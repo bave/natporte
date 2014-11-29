@@ -411,7 +411,6 @@ Entry.prototype.releaseWanPort = function(ip, port)
     return undefined;
 };
 
-
 module.exports = Entry;
 
 // test code ----------------------------------------------------------

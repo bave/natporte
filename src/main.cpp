@@ -193,7 +193,6 @@ int main(int argc, char** argv)
         return -1;
     }
 
-
     if (lan_if == NULL) {
         usage();
         return -1;
@@ -481,5 +480,4 @@ void usage()
               << std::endl;
     return;
 }
-
 

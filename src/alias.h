@@ -544,7 +544,7 @@ static inline uint16_t checksum(const uint8_t* buf, size_t size, uint32_t adjust
 static inline void checksum_transport(struct ip* iphdr, size_t size)
 {
     uint32_t pseudoSum = 0;
-    uint8_t protocol;
+    uint8_t  protocol;
     uint8_t* l3_buf = (uint8_t*)iphdr;
     uint8_t* l4_buf = (uint8_t*)iphdr+(iphdr->ip_hl<<2);
 

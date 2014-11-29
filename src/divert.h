@@ -190,7 +190,6 @@ goto: DIVERT_RE_CHECK;
 
 #ifdef STANDALONE
                     //XXX
-                    
                     goto DIVERT_RE_CHECK;
 #else
                     ring_push(&h_send, buf, size, AP_SEND_REQ|AP_ADDRPOOL);

@@ -145,16 +145,13 @@ var server = net.createServer(
         info.push(own["port"]);
         info.push(socket.remoteAddress);
         info.push(socket.remotePort);
-
         //console.log(info);
-        //socket.setEncoding("utf8");
-        //socket.addListener("end", server_end);
-        //socket.addListener("data", server_data);
-        //socket.addListener("connect", server_connect);
 
-        socket.on('end', function(){ server_end(socket, info); });
-        socket.on('connect', function(){ server_connect(socket, info); });
+        //socket.setEncoding("utf8");
+        server_connect(socket, info);
+        //socket.on('connect', function(){ server_connect(socket, info); });
         socket.on('data', function(data){ server_data(socket, info, data); });
+        socket.on('end', function(){ server_end(socket, info); });
     }
 );
 
