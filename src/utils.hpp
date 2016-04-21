@@ -14,6 +14,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <sched.h>
+#include <unistd.h>
 
 #include <netinet/in_systm.h>
 #include <netinet/in.h>

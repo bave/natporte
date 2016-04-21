@@ -4,7 +4,8 @@
 int main(int argc, char** argv)
 {
     pname = argv[0];
-    interface::interface iflist;
+    class interface::interface iflist;
+
     int i;
     for (i=0; i<iflist.listsize(); i++) {
         std::cout << iflist.name(i) << std::endl;
